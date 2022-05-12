@@ -1,6 +1,6 @@
 # TicTacToeJS
 
 Usage:
-cd server
-npm install
-nodemon index.js
+cd server <br>
+npm install <br>
+nodemon index.js <br>
