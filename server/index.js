@@ -7,7 +7,7 @@ const fs = require("fs");
 const server = http.Server(app).listen(8080)
 const io = socketIo(server);
 
-app.use(express.static(__dirname + "/../"))
+app.use(express.static(__dirname + "/../client/"))
 
 /**
  * API base PATH -> returns index.html
@@ -46,10 +46,14 @@ io.on("connection", function (socket) {
         // check if room exists
         if (rooms.hasOwnProperty(room)) {
 
-            // TODO check if room not full
-            socket.join(room)
-            rooms[room].player2 = socket
-            startGame(room)
+            // check if room not full
+            if (rooms[room].player2)
+                socket.emit("room_full")
+            else {
+                socket.join(room)
+                rooms[room].player2 = socket
+                startGame(room)
+            }
 
         } else
             socket.emit("room_doesnt_exist")
@@ -70,20 +74,30 @@ io.on("connection", function (socket) {
             io.to(room).emit("move_made", {"cell": cell, "symbol": rooms[room].turn})
 
             // change turn
-            rooms[room].turn = rooms[room].turn == "X" ? "Y" : "X"
+            rooms[room].turn = rooms[room].turn == "X" ? "O" : "X"
 
             // check if game is over
             let [gameOver, winner] = isGameOver(rooms[room].board)
             if (gameOver){
                 io.to(room).emit("game_over", {"winner": winner})
                 endGame(room)
-                console.log(socket.rooms);
             }
 
         }else
             socket.emit("wrong_move")
 
     })
+
+    // On player disconnect
+    socket.on("disconnect", () => {
+
+        let room = findPlayersRoom(socket)
+        if (room){
+            io.to(room).emit("opponent_disconnected")
+            endGame(room)
+        }
+
+    });
 
 });
 
@@ -92,7 +106,7 @@ io.on("connection", function (socket) {
  * @returns -> room number
  */
 const createRoom = () => {
-    let room = Math.floor(Math.random() * 9999) + 1
+    let room = Math.floor(1000 + Math.random() * 9000) + 1
 
     if (!rooms.hasOwnProperty(room))
         return room.toString()
@@ -105,7 +119,7 @@ const createRoom = () => {
 function startGame(room) {
 
     rooms[room].player1.emit("start_game", {"symbol": "X", "turn": "X"})
-    rooms[room].player2.emit("start_game", {"symbol": "X", "turn": "O"})
+    rooms[room].player2.emit("start_game", {"symbol": "O", "turn": "X"})
 
 }
 
@@ -144,8 +158,6 @@ const findPlayersRoom = (player) => {
  */
 function isGameOver(board) {
     
-    console.log(board);
-
     let matches = ["XXX", "OOO"],
     
     winning_combinations = [
@@ -184,6 +196,10 @@ function isGameOver(board) {
  * @param {*} room -> room number
  */
 function endGame(room){
-    io.in(room).disconnectSockets();
+    
+    rooms[room].player1.leave(room)
+    if (rooms[room].player2)
+        rooms[room].player2.leave(room)
+
     delete rooms[room]
 }
