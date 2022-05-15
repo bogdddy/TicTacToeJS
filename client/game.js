@@ -12,7 +12,8 @@ class Game {
     }
 
     resetBoard(){
-        $(".cell").html("")
+        $(".cell").removeClass("bg-img")
+        $(".cell").css({"background-image": "none"})
     }
 
 }
