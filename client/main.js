@@ -15,7 +15,7 @@ $(document).ready(() => {
 /**
  * Shows modal with createRoom and joinRoom buttons
  */
- function showStartModal() {
+function showStartModal() {
 
   Swal.fire({
     icon: 'question',
@@ -31,7 +31,7 @@ $(document).ready(() => {
 /**
  * emit create room
  */
- function createRoom() {
+function createRoom() {
   socket.emit("create_room")
 }
 
@@ -54,15 +54,15 @@ async function joinRoom() {
 /**
  * send move to server
  */
- function makeMove() {
+function makeMove() {
 
   // check turn
   if (game.my_symbol != game.turn)
     return
 
   // The space is already checked
-  if ($(this).html().length)
-    return
+  // if ($(this).html().length)
+  //   return
 
   // emit the move to the server
   if (game.playing)
@@ -89,7 +89,7 @@ socket.on("room_created", function (room_code) {
  * wrong room code
  */
 socket.on("room_doesnt_exist", function () {
-  
+
   Swal.fire({
     title: "room doesn't exist",
   }).then(() => showStartModal())
@@ -118,7 +118,7 @@ socket.on("start_game", function (data) {
   game.playing = true
   game.my_symbol = data.symbol
   game.turn = data.turn
-  $("#alerts").html(game.turn+"'s turn")
+  $("#alerts").html(game.turn + "'s turn")
 
 })
 
@@ -127,7 +127,9 @@ socket.on("start_game", function (data) {
  */
 socket.on("move_made", function (data) {
 
-  $(`#${data.cell}`).html(data.symbol)
+  $(`#${data.cell}`).addClass("bg-img")
+  $(`#${data.cell}`).css({ "background-image": `url('./images/${data.symbol}.png')`, "background-repeat": "no-repeat" })
+
   game.changeTrun()
 
 });
@@ -151,7 +153,7 @@ socket.on("wrong_move", () => {
  * game ended
  */
 socket.on("game_over", function (data) {
-  
+
   game.playing = false
 
   Swal.fire({

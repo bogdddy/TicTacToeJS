@@ -13,6 +13,7 @@
     <title>TicTacToe</title>
 </head>
 <style>
+
     body {
         display: flex;
         justify-content: center;
@@ -23,9 +24,16 @@
     /* BOARD  */
 
     table {
+        margin-top: 3.5%;
         width: 50%;
         border-collapse: collapse;
+        position: relative;
     }
+
+    .cell {
+        background-repeat: no-repeat;
+    }
+
 
     td {
         width: 33.333%;
@@ -34,8 +42,8 @@
 
     td::after {
         content: "";
-        display: block;
-        margin-top: 100%;
+        display: flex;
+        margin-top: 80%;
     }
 
     td {
@@ -58,6 +66,15 @@
 
     tr:nth-of-type(3) td {
         border-bottom-color: transparent;
+    }
+
+    /* CELL BACKGROUND IMAGE */
+
+    .bg-img{
+        background-repeat: "no-repeat";
+        background-size: 100% 100%;
+        height:"80%";
+        position:"relative";
     }
 
     /* LOADING SPINNER  */
@@ -96,6 +113,7 @@
     <table id="board">
         <tr>
             <td class="cell" id="A1"></td>
+           
             <td class="cell" id="A2"></td>
             <td class="cell" id="A3"></td>
         </tr>
